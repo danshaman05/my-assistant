@@ -1,0 +1,14 @@
+{% extends 'base.html' %}
+
+  <h1>{% block title %}Radar{% endblock %}</h1>
+
+
+
+{% block content %}
+
+<div style="border: 3px solid rgb(201, 0, 1); overflow: hidden; margin: 15px auto; max-width: 736px;">
+<iframe scrolling="no" src="https://www.shmu.sk/sk/?page=1&id=meteo_radar" style="border: 0px none; margin-left: -185px; height: 950px; margin-top: -533px; width: 926px;">
+</iframe>
+</div>
+
+{% endblock %}
