@@ -1,6 +1,6 @@
 from flask import Flask, render_template
 
-from scrapper import get_aladin_url_img
+from shmu_scrapper import get_aladin_url_img
 
 app = Flask(__name__)
 
@@ -12,3 +12,5 @@ def shmu_aladin():
 @app.route("/radar")
 def shmu_radar():
     return render_template("shmu_radar.html")
+
+
