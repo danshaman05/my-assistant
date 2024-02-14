@@ -2,10 +2,15 @@
 <title>{% block title %}{% endblock %} - My assistant</title>
 <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 
-<!--<script -->
-<!--        src="https://code.jquery.com/jquery-3.7.1.min.js"-->
+
+<!--JQuery -->
+<!--<script-->
+<!--  src="https://code.jquery.com/jquery-3.7.1.min.js"-->
 <!--  integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo="-->
 <!--  crossorigin="anonymous"></script>-->
+
+
+
 
 <section class="content">
   <header>
@@ -18,3 +23,6 @@
   </header>
   <main>{% block content %}{% endblock %}</main>
 </section>
+
+<!--My javascript-->
+<!--<script src="{{url_for('static', filename='script.js')}}"></script>-->
