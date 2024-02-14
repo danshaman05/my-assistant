@@ -11,11 +11,8 @@ SCHEDULES_PAGE_URL_OFFLINE = "/home/daniel/PycharmProjects/My_assistant/imhd_off
 def get_line_stops_page_url(line: int):
     """Get a line stops webpage (for both directions)."""
     r = requests.get(SCHEDULES_PAGE_URL)
-    # print(r.content)
     soup = BeautifulSoup(r.content, features="lxml")
-
     linky = soup.css.select("a.Linka--lg")
-
     line_url = None
     for l in linky:
         if l.text == str(line):
@@ -24,21 +21,16 @@ def get_line_stops_page_url(line: int):
     return IMHD_URL_PREFIX + line_url
 
 
-
-
 def get_next_departures(line: int, direction: str):
+    # TODO
     """return 5 next departures"""
 
     """staci v tabulke s id SM14 najst td, ktory ma class="next-departure. To je najblizsi cas odchodu.
-    
     Ja to asi spravim tak, ze ziskam si do dvoch poli (ktore budu predstavovat dve hodiny - aktualnu a dalsiu) vsetky odchody.
     Potom vyberiem len tie, co su rovne, alebo vacsie ako next-departure odchod.
     """
 
-    # TODO
     # first_departure =
-
-
 
 
 if __name__ == "__main__":
