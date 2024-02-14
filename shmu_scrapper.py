@@ -13,5 +13,6 @@ def get_aladin_url_img():
 
 
 
+
 if __name__ == "__main__":
     print(get_aladin_url_img())
