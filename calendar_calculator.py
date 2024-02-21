@@ -1,9 +1,9 @@
 
-from datetime import datetime, timedelta, date
+from datetime import datetime, timedelta
 from workalendar.europe import Slovakia
-
-from imhd_scrapper import SCHEDULES_TABLE_IDS_DICT
 import constants
+
+
 def get_datetime_objects_between_2_dates(start_date: datetime, end_date: datetime):
     lst = []
     interval = timedelta(days=1)
@@ -45,7 +45,6 @@ def calculate_day_for_imhd_schedules():
              return constants.WORKING_DAYS_SCHOOL_YEAR
     else:
         return constants.FREE_DAYS
-
 
 
 """Cele toto mozno nebude fungovat, lebo neviem ze ci linky DPB sa riadia iba podla letnych prazdnin, alebo aj podla
