@@ -3,7 +3,7 @@ from bs4 import BeautifulSoup
 from datetime import datetime
 
 import calendar_calculator
-import constants
+from SchedulesTable import SchedulesTable
 
 IMHD_URL_PREFIX = "https://imhd.sk"
 SCHEDULES_PAGE_URL = "https://imhd.sk/ba/cestovne-poriadky"
@@ -13,13 +13,9 @@ SCHEDULES_PAGE_URL_OFFLINE = "/home/daniel/PycharmProjects/My_assistant/imhd_off
 for schedules in this and the next hour only. Therefore, the number of schedules that programme outputs may be less than this number."""
 NEXT_SCHEDULES_COUNT = 6
 
-# ids for tables in IMHD schedules (e.g.: https://imhd.sk/ba/cestovny-poriadok/linka/3/Farsk%C3%A9ho/smer-Ra%C4%8Da/bd807c807f847f7f827c8275c18075b6858775be7f75c98075b3)
-SCHEDULES_TABLE_IDS_DICT = {constants.FREE_DAYS: "SM9",
-                            constants.WORKING_DAYS_SCHOOL_YEAR: "SM14",
-                            constants.WORKING_DAYS_SCHOOL_HOLIDAYS: "SM11"}
-
 # EN/SK Dictionary:
 # line = linka mestskej hromadnej dopravy (Bratislava)
+
 
 def get_soup(url):
     # OLD APPROACH:
@@ -64,33 +60,63 @@ def get_line_schedules_url(line: int, direction: str, stop: str):
     raise ValueError("Your input is probably wrong. Check it, and if it is OK, contact a developer.")
 
 
-def get_next_departures(line: int, direction: str, stop: str):
+def get_css_selector(table_id: str, departure_hour ):
+    return f"table[id={table_id}] tr[id={table_id.lower()}T{departure_hour}] td"
+
+
+def get_next_departures_from_schedules_table(line: int, direction: str, stop: str) -> dict:
     """return a dictionary, where keys are hours (current and next), and values are minutes - departures"""
     """
-    Robim to tak, ze ziskam si do dvoch poli (ktore budu predstavovat dve hodiny - aktualnu a dalsiu) vsetky odchody.
+    Ziskam si do dvoch poli (ktore budu predstavovat dve hodiny - aktualnu a dalsiu) vsetky odchody.
     Potom vyberiem 6 (konstanta NEXT_SCHEDULES_COUNT) takych, co su rovne, alebo vacsie ako next-departure odchod.
     """
     url = get_line_schedules_url(line, direction, stop)
-    print(url)
     soup = get_soup(url)
 
     now = datetime.now()
-    current_hour = now.hour
-    current_minute = now.minute
+    current_hour: int = now.hour
+    current_minute: int = now.minute
 
-    type_of_day = calendar_calculator.calculate_day_for_imhd_schedules()
-    table_id = SCHEDULES_TABLE_IDS_DICT[type_of_day]
+    # div with id "myTabContent" contains tables
+    tables = soup.css.select("div[id=myTabContent] div[id^=SM]")
+    print("len of tables: " + str(len(tables)))
 
-    # TODO POZOR toto nebude fungovat pre linku 39 !!! vtedy je tabulka "Pracovne dni" ako SM-21
-    first_row_td_elements = soup.css.select(f"table[id={table_id}] tr[id={table_id.lower()}T{current_hour}] td")
+    tables = [SchedulesTable(t.get('id'), t.h2.getText(), t) for t in tables]
+
+    table_id = None
+    for table in tables:
+        applicable_days = table.get_applicable_days()
+        if calendar_calculator.is_working_day():
+            if calendar_calculator.DayTypes.WORKING_DAY in applicable_days:
+                table_id = table._id
+        elif calendar_calculator.DayTypes.FREE_DAY in applicable_days:
+                table_id = table._id
+        if calendar_calculator.is_school_holiday_day():
+            if calendar_calculator.DayTypes.SCHOOL_HOLIDAY_DAY in applicable_days:
+                table_id = table._id
+        elif calendar_calculator.DayTypes.SCHOOL_DAY in applicable_days:
+            table_id = table.id
+
+
+    if table_id is None:
+        print('table_id is None')
+        return {}
+    else:
+        print("table_id:" + table_id)
+
+    print()
+
+    table_id_short = table_id.replace('-', '')  # get rid of a hyphen
+
+    css_selector = get_css_selector(table_id_short, current_hour)
+    first_row_td_elements = soup.css.select(css_selector)
     first_row_lst = [td.getText() for td in first_row_td_elements if td.getText()]   # TODO oddelime cisla od posledneho charu? A ulozime sem tuples? V tom pripade by sme j mohli nejak zvyraznit
 
     # next_schedules is a dict, where key are hours (current and next), and values are minutes
     next_schedules = {current_hour: []}
 
-    """ do next_schedules sa ako values davaju stringy. Staci najst index toho, ktory je najblizsie k aktualnemu casu, 
+    """Do next_schedules sa ako values davaju stringy. Staci najst index toho, ktory je najblizsie k aktualnemu casu, 
     a potom vsetky prvky zo zonamu od toho indexu vyssie pridat."""
-
     for s in first_row_lst:
         if s:
             # some departures have specific symbol (route for this line is different)
@@ -99,18 +125,18 @@ def get_next_departures(line: int, direction: str, stop: str):
                 last_char = s[-1]
                 s = s[:-1]
             s = int(s)
-            if s < current_minute:
+            if s <= current_minute:
                 continue
             else:
                 s = str(s) + last_char
                 next_schedules[current_hour].append(s)
 
-    next_schedules_cnt = len(next_schedules[current_hour])   #count of all td elements
+    next_schedules_cnt = len(next_schedules[current_hour])   #count all added td elements
     if next_schedules_cnt < NEXT_SCHEDULES_COUNT:
-        # let's scrap another row
-        # Take all schedules from next hour. Then add first 6 (or lower) to next_schedules dictionary.
-        next_hour = current_hour + 1
-        second_row_td_elements = soup.css.select(f"table[id=SM14] tr[id=sm14T{next_hour}] td")
+        # let's scrap another row. Take all schedules from next hour. Then add first 6 (or less) to next_schedules dictionary.
+        next_hour: int = current_hour + 1
+        css_selector = get_css_selector(table_id_short, next_hour)
+        second_row_td_elements = soup.css.select(css_selector)
         second_row_lst = [td.getText() for td in second_row_td_elements if td.getText()]
         if second_row_lst:
             next_schedules[next_hour] = []
@@ -126,7 +152,7 @@ if __name__ == "__main__":
     TESTING = True
 
     if TESTING:
-        # print("Start of testing.")
+        print("Start of testing.")
         # assert get_line_stops_page_url(3) == "https://imhd.sk/ba/linka/3/bd807c807f847f7f827c82"
         # assert get_line_stops_page_url(9) == "https://imhd.sk/ba/linka/9/bd807c807f847f7f887c88"
         # assert get_line_stops_page_url(33) == "https://imhd.sk/ba/linka/33/bd807c807f847f82827c8282"
@@ -144,11 +170,19 @@ if __name__ == "__main__":
         # Note: I cannot test get_next_departures(), because we have different schedules for different days (workdays, school holidays, etc.)
         # It needs to be tested manually.
 
-        # print(get_next_departures(3, "rača", "Jungmannova"))
 
-        # current_hour = 13
-        # current_minute = 28
-        print(get_next_departures(3, 'rača', 'centrum'))
+        print("Linka 3:")
+        print(get_next_departures_from_schedules_table(3, "rača", "Jungmannova"))
+        # print(get_next_departures_from_schedules_table(3, 'rača', 'centrum'))
+        # print("Linka 41:")
+        # print(get_next_departures_from_schedules_table(41, 'Hlavná stanica', 'Na hrebienku'))
+
+
+        # 84 je otestovana a funguje
+        # print("Linka 84:")
+        # print(get_next_departures_from_schedules_table(84, 'Petržalka, Ovsište', 'ŠVantnerova'))
 
         print("End of testing.")
+
+
 

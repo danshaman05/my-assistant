@@ -1,10 +1,15 @@
-
 from datetime import datetime, timedelta
 from workalendar.europe import Slovakia
-import constants
+from enum import Enum
+
+class DayTypes(Enum):
+    WORKING_DAY = 'working_day'
+    FREE_DAY = 'free_day'
+    SCHOOL_DAY = 'school_day'
+    SCHOOL_HOLIDAY_DAY = 'school_holiday_day'
 
 
-def get_datetime_objects_between_2_dates(start_date: datetime, end_date: datetime):
+def _get_datetime_objects_between_2_dates(start_date: datetime, end_date: datetime):
     lst = []
     interval = timedelta(days=1)
     current_date = start_date
@@ -15,36 +20,34 @@ def get_datetime_objects_between_2_dates(start_date: datetime, end_date: datetim
 
 
 #Prazdniny 2024
-vianocne_first_day = datetime(2024, 1, 1)
-vianocne = [vianocne_first_day + timedelta(days=x) for x in range(7)]
+_vianocne_first_day = datetime(2024, 1, 1)
+_vianocne = [_vianocne_first_day + timedelta(days=x) for x in range(7)]
 
-jarne_first_day = datetime(2024, 3, 4)
-jarne = [jarne_first_day + timedelta(days=x) for x in range(4)]
+_jarne_first_day = datetime(2024, 3, 4)
+_jarne = [_jarne_first_day + timedelta(days=x) for x in range(4)]
 
-velkonocne_first_day = datetime(2024, 3, 28)
-velkonocne_last_day = datetime(2024, 4, 2)
-velkonocne = get_datetime_objects_between_2_dates(velkonocne_first_day, velkonocne_last_day)
+_velkonocne_first_day = datetime(2024, 3, 28)
+_velkonocne_last_day = datetime(2024, 4, 2)
+_velkonocne = _get_datetime_objects_between_2_dates(_velkonocne_first_day, _velkonocne_last_day)
 
-letne_first_day = datetime(2024, 7, 1)
-letne_last_day =  datetime(2024, 8, 31)
-letne = get_datetime_objects_between_2_dates(letne_first_day, letne_last_day)
+_letne_first_day = datetime(2024, 7, 1)
+_letne_last_day =  datetime(2024, 8, 31)
+_letne = _get_datetime_objects_between_2_dates(_letne_first_day, _letne_last_day)
 
 # all school holidays
-skolske_prazdniny = vianocne + jarne + velkonocne + letne
+_skolske_prazdniny = _vianocne + _jarne + _velkonocne + _letne
 
 # Get current date but set it to midnight:
 today = datetime.now().replace(hour=0, minute=0, second=0, microsecond=0)
 
 
-def calculate_day_for_imhd_schedules():
+def is_working_day():
     cal = Slovakia()
-    if cal.is_working_day(today):
-        if today in skolske_prazdniny:
-            return constants.WORKING_DAYS_SCHOOL_HOLIDAYS
-        else:
-             return constants.WORKING_DAYS_SCHOOL_YEAR
-    else:
-        return constants.FREE_DAYS
+    return cal.is_working_day(today)
+
+def is_school_holiday_day():
+    return today in _skolske_prazdniny
+
 
 
 """Cele toto mozno nebude fungovat, lebo neviem ze ci linky DPB sa riadia iba podla letnych prazdnin, alebo aj podla
