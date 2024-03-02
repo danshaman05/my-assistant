@@ -17,15 +17,15 @@ NEXT_SCHEDULES_COUNT = 6
 # line = linka mestskej hromadnej dopravy (Bratislava)
 
 
-def get_soup(url):
+def _get_soup(url):
     # OLD APPROACH:
     r = requests.get(url)
     soup = BeautifulSoup(r.content, 'html.parser')
     return soup
 
-def get_line_stops_page_url(line: int):
+def _get_line_stops_page_url(line: int):
     """Get a line stops webpage (for both directions)."""
-    soup = get_soup(SCHEDULES_PAGE_URL)
+    soup = _get_soup(SCHEDULES_PAGE_URL)
     linky = soup.css.select("a.Linka--lg")
     line_url = None
     for l in linky:
@@ -34,15 +34,15 @@ def get_line_stops_page_url(line: int):
             break
     return IMHD_URL_PREFIX + line_url
 
-def get_line_schedules_url(line: int, direction: str, stop: str):
+def _get_line_schedules_url(line: int, direction: str, stop: str):
     """ 
     line: e.g. 3,
     direction: e.g. 'rača',
     stop: 'Jungmanova'
     """
-    line_stops_page_url = get_line_stops_page_url(line)
+    line_stops_page_url = _get_line_stops_page_url(line)
 
-    soup = get_soup(line_stops_page_url)
+    soup = _get_soup(line_stops_page_url)
 
     list_of_elements = soup.css.select('div[class^="ModuleGroup-left"] div[class^="ModuleGroup-left"] h2[class^="Heading h5"]')
     left_direction = list_of_elements[0]
@@ -60,7 +60,7 @@ def get_line_schedules_url(line: int, direction: str, stop: str):
     raise ValueError("Your input is probably wrong. Check it, and if it is OK, contact a developer.")
 
 
-def get_css_selector(table_id: str, departure_hour ):
+def _get_css_selector(table_id: str, departure_hour):
     return f"table[id={table_id}] tr[id={table_id.lower()}T{departure_hour}] td"
 
 
@@ -70,8 +70,8 @@ def get_next_departures_from_schedules_table(line: int, direction: str, stop: st
     Ziskam si do dvoch poli (ktore budu predstavovat dve hodiny - aktualnu a dalsiu) vsetky odchody.
     Potom vyberiem 6 (konstanta NEXT_SCHEDULES_COUNT) takych, co su rovne, alebo vacsie ako next-departure odchod.
     """
-    url = get_line_schedules_url(line, direction, stop)
-    soup = get_soup(url)
+    url = _get_line_schedules_url(line, direction, stop)
+    soup = _get_soup(url)
 
     now = datetime.now()
     current_hour: int = now.hour
@@ -108,7 +108,7 @@ def get_next_departures_from_schedules_table(line: int, direction: str, stop: st
 
     table_id_short = table_id.replace('-', '')  # get rid of a hyphen
 
-    css_selector = get_css_selector(table_id_short, current_hour)
+    css_selector = _get_css_selector(table_id_short, current_hour)
     first_row_td_elements = soup.css.select(css_selector)
     first_row_lst = [td.getText() for td in first_row_td_elements if td.getText()]   # TODO oddelime cisla od posledneho charu? A ulozime sem tuples? V tom pripade by sme j mohli nejak zvyraznit
 
@@ -135,7 +135,7 @@ def get_next_departures_from_schedules_table(line: int, direction: str, stop: st
     if next_schedules_cnt < NEXT_SCHEDULES_COUNT:
         # let's scrap another row. Take all schedules from next hour. Then add first 6 (or less) to next_schedules dictionary.
         next_hour: int = current_hour + 1
-        css_selector = get_css_selector(table_id_short, next_hour)
+        css_selector = _get_css_selector(table_id_short, next_hour)
         second_row_td_elements = soup.css.select(css_selector)
         second_row_lst = [td.getText() for td in second_row_td_elements if td.getText()]
         if second_row_lst:
@@ -153,18 +153,18 @@ if __name__ == "__main__":
 
     if TESTING:
         print("Start of testing.")
-        # assert get_line_stops_page_url(3) == "https://imhd.sk/ba/linka/3/bd807c807f847f7f827c82"
-        # assert get_line_stops_page_url(9) == "https://imhd.sk/ba/linka/9/bd807c807f847f7f887c88"
-        # assert get_line_stops_page_url(33) == "https://imhd.sk/ba/linka/33/bd807c807f847f82827c8282"
-        # assert get_line_stops_page_url(42) == "https://imhd.sk/ba/linka/42/bd807c807f847f83817c8381"
-        # assert get_line_stops_page_url(83) == "https://imhd.sk/ba/linka/83/bd807c807f847f87827c8782"
-        # assert get_line_stops_page_url(84) == "https://imhd.sk/ba/linka/84/bd807c807f847f87837c8783"
+        # assert _get_line_stops_page_url(3) == "https://imhd.sk/ba/linka/3/bd807c807f847f7f827c82"
+        # assert _get_line_stops_page_url(9) == "https://imhd.sk/ba/linka/9/bd807c807f847f7f887c88"
+        # assert _get_line_stops_page_url(33) == "https://imhd.sk/ba/linka/33/bd807c807f847f82827c8282"
+        # assert _get_line_stops_page_url(42) == "https://imhd.sk/ba/linka/42/bd807c807f847f83817c8381"
+        # assert _get_line_stops_page_url(83) == "https://imhd.sk/ba/linka/83/bd807c807f847f87827c8782"
+        # assert _get_line_stops_page_url(84) == "https://imhd.sk/ba/linka/84/bd807c807f847f87837c8783"
         #
-        # assert get_line_schedules_url(3, "rača", "Jungmannova") == "https://imhd.sk/ba/cestovny-poriadok/linka/3/Jungmannova/smer-Ra%C4%8Da/bd807c807f847f7f827c8275c18075b680808775be7f75c97f75b3"
-        # assert get_line_schedules_url(3, "rača", "Farského") == "https://imhd.sk/ba/cestovny-poriadok/linka/3/Farsk%C3%A9ho/smer-Ra%C4%8Da/bd807c807f847f7f827c8275c18075b6858775be7f75c98075b3"
-        # assert get_line_schedules_url(84, "DÚBRAVKA, PRI KRÍŽI", "Dvory") == "https://imhd.sk/ba/cestovny-poriadok/linka/84/Dvory/smer-D%C3%BAbravka-Pri-kr%C3%AD%C5%BEi/bd807c807f847f87837c878375c17f75b6858375be7f75c98875b3"
-        # assert get_line_schedules_url(84, "DÚBRAVKA, PRI KRÍŽI", "Hodžovo nám.") == "https://imhd.sk/ba/cestovny-poriadok/linka/84/Hod%C5%BEovo-n%C3%A1m/smer-D%C3%BAbravka-Pri-kr%C3%AD%C5%BEi/bd807c807f847f87837c878375c17f75b6878275be7f75c9808175b3"
-        # assert get_line_schedules_url(31, "CINTORÍN SLÁVIČIE", "Kráľovské údolie") == "https://imhd.sk/ba/cestovny-poriadok/linka/31/Kr%C3%A1%C4%BEovsk%C3%A9-%C3%BAdolie/smer-Cintor%C3%ADn-Sl%C3%A1vi%C4%8Die/bd807c807f847f82807c828075c18075b681848075be7f75c98475b3"
+        # assert _get_line_schedules_url(3, "rača", "Jungmannova") == "https://imhd.sk/ba/cestovny-poriadok/linka/3/Jungmannova/smer-Ra%C4%8Da/bd807c807f847f7f827c8275c18075b680808775be7f75c97f75b3"
+        # assert _get_line_schedules_url(3, "rača", "Farského") == "https://imhd.sk/ba/cestovny-poriadok/linka/3/Farsk%C3%A9ho/smer-Ra%C4%8Da/bd807c807f847f7f827c8275c18075b6858775be7f75c98075b3"
+        # assert _get_line_schedules_url(84, "DÚBRAVKA, PRI KRÍŽI", "Dvory") == "https://imhd.sk/ba/cestovny-poriadok/linka/84/Dvory/smer-D%C3%BAbravka-Pri-kr%C3%AD%C5%BEi/bd807c807f847f87837c878375c17f75b6858375be7f75c98875b3"
+        # assert _get_line_schedules_url(84, "DÚBRAVKA, PRI KRÍŽI", "Hodžovo nám.") == "https://imhd.sk/ba/cestovny-poriadok/linka/84/Hod%C5%BEovo-n%C3%A1m/smer-D%C3%BAbravka-Pri-kr%C3%AD%C5%BEi/bd807c807f847f87837c878375c17f75b6878275be7f75c9808175b3"
+        # assert _get_line_schedules_url(31, "CINTORÍN SLÁVIČIE", "Kráľovské údolie") == "https://imhd.sk/ba/cestovny-poriadok/linka/31/Kr%C3%A1%C4%BEovsk%C3%A9-%C3%BAdolie/smer-Cintor%C3%ADn-Sl%C3%A1vi%C4%8Die/bd807c807f847f82807c828075c18075b681848075be7f75c98475b3"
 
 
         # Note: I cannot test get_next_departures(), because we have different schedules for different days (workdays, school holidays, etc.)
