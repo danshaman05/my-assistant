@@ -31,6 +31,43 @@ header li a:hover:not(.active) {
 
 main {
     margin: auto;
-    width: 70%;
+    width: 75%;
+}
 
+#schedules_main {
+    border-style: dashed;
+}
+
+#schedules_main {
+    display: grid;
+    grid-template-columns: 1fr 1fr 3fr;
+    grid-template-rows: 3em repeat(1, 1fr);
+}
+
+#schedules_main div {
+    border-radius: 5px;
+    padding: 1em 0.5em;
+
+}
+
+#schedules_main .header {
+    background-color: Cornsilk;
+    /*text-transform: uppercase; */
+}
+
+#tram_3 {
+    background-color: DarkRed;
+    color: Cornsilk;
+}
+
+#schedules_main.content {
+
+}
+
+
+#schedules_main .schedule_time {
+    float: left;
+
+    margin: 5px;
+    padding: 0.25em;
 }
