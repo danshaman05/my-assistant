@@ -11,7 +11,7 @@ SCHEDULES_PAGE_URL_OFFLINE = "/home/daniel/PycharmProjects/My_assistant/imhd_off
 
 """ NEXT_SCHEDULES_COUNT sets how much next schedules we want to find out. Note, that the programme will look 
 for schedules in this and the next hour only. Therefore, the number of schedules that programme outputs may be less than this number."""
-NEXT_SCHEDULES_COUNT = 6
+NEXT_SCHEDULES_MAX_COUNT = 6
 
 # EN/SK Dictionary:
 # line = linka mestskej hromadnej dopravy (Bratislava)
@@ -114,11 +114,12 @@ def get_next_departures_from_schedules_table(line: int, direction: str, stop: st
 
     # next_schedules is a dict, where key are hours (current and next), and values are minutes
     next_schedules = {current_hour: []}
+    next_schedules_cnt = 0
 
     """Do next_schedules sa ako values davaju stringy. Staci najst index toho, ktory je najblizsie k aktualnemu casu, 
     a potom vsetky prvky zo zonamu od toho indexu vyssie pridat."""
     for s in first_row_lst:
-        if s:
+        if s and next_schedules_cnt < NEXT_SCHEDULES_MAX_COUNT:
             # some departures have specific symbol (route for this line is different)
             last_char = ''
             if s[-1].isalpha():
@@ -130,9 +131,10 @@ def get_next_departures_from_schedules_table(line: int, direction: str, stop: st
             else:
                 s = str(s) + last_char
                 next_schedules[current_hour].append(s)
+                next_schedules_cnt += 1
 
     next_schedules_cnt = len(next_schedules[current_hour])   #count all added td elements
-    if next_schedules_cnt < NEXT_SCHEDULES_COUNT:
+    if next_schedules_cnt < NEXT_SCHEDULES_MAX_COUNT:
         # let's scrap another row. Take all schedules from next hour. Then add first 6 (or less) to next_schedules dictionary.
         next_hour: int = current_hour + 1
         css_selector = _get_css_selector(table_id_short, next_hour)
