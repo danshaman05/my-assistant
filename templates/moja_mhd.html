@@ -9,15 +9,9 @@
         <div class="header">Smer</div>
         <div class="header">Odchody</div>
 
-        <div class="content" id="tram_3">Električka 3</div>
-        <div class="content">Rača</div>
-        <div class="content" >
-            {% for hour, list_of_minutes in data[(3, 'rača')].items() -%}
-                {% for minute in list_of_minutes %}
-                    <div class="schedule_time">{{ hour }}:{{minute}}</div>
-                {% endfor %}
-            {% endfor %}
-        </div>
+        {% for line_tuple, line_object in data.items() %}
+            {% include('imhd_line_row.html') %}
+        {% endfor %}
     </div>
 </div>
 

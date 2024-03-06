@@ -64,13 +64,13 @@ def _get_css_selector(table_id: str, departure_hour):
     return f"table[id={table_id}] tr[id={table_id.lower()}T{departure_hour}] td"
 
 
-def get_next_departures_from_schedules_table(line: int, direction: str, stop: str) -> dict:
+def get_next_departures_from_schedules_table(line: int, direction: str, start_station: str) -> dict[int, list[str]]:
     """return a dictionary, where keys are hours (current and next), and values are minutes - departures"""
     """
     Ziskam si do dvoch poli (ktore budu predstavovat dve hodiny - aktualnu a dalsiu) vsetky odchody.
     Potom vyberiem 6 (konstanta NEXT_SCHEDULES_COUNT) takych, co su rovne, alebo vacsie ako next-departure odchod.
     """
-    url = _get_line_schedules_url(line, direction, stop)
+    url = _get_line_schedules_url(line, direction, start_station)
     soup = _get_soup(url)
 
     now = datetime.now()
@@ -79,7 +79,6 @@ def get_next_departures_from_schedules_table(line: int, direction: str, stop: st
 
     # div with id "myTabContent" contains tables
     tables = soup.css.select("div[id=myTabContent] div[id^=SM]")
-    print("len of tables: " + str(len(tables)))
 
     tables = [SchedulesTable(t.get('id'), t.h2.getText(), t) for t in tables]
 
@@ -96,15 +95,6 @@ def get_next_departures_from_schedules_table(line: int, direction: str, stop: st
                 table_id = table._id
         elif calendar_calculator.DayTypes.SCHOOL_DAY in applicable_days:
             table_id = table.id
-
-
-    if table_id is None:
-        print('table_id is None')
-        return {}
-    else:
-        print("table_id:" + table_id)
-
-    print()
 
     table_id_short = table_id.replace('-', '')  # get rid of a hyphen
 
@@ -129,7 +119,7 @@ def get_next_departures_from_schedules_table(line: int, direction: str, stop: st
             if s <= current_minute:
                 continue
             else:
-                s = str(s) + last_char
+                s = "{:02d}".format(s) + last_char
                 next_schedules[current_hour].append(s)
                 next_schedules_cnt += 1
 
