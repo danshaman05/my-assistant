@@ -9,7 +9,6 @@ from constants import IMHDLineDirection, IMHDLineDirectionAlias, IMHDLineType
 
 app = Flask(__name__)
 
-@app.route("/")
 @app.route("/aladin")
 def shmu_aladin():
     return render_template("shmu_aladin.html", aladin_img_src=get_aladin_url_img())
@@ -19,6 +18,7 @@ def shmu_radar():
     return render_template("shmu_radar.html")
 
 
+@app.route("/")
 @app.route("/moja-mhd")
 async def moja_mhd():
     data: OrderedDict[(int, str), IMHDLine] = OrderedDict()
