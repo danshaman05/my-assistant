@@ -1,6 +1,6 @@
-import requests
 from bs4 import BeautifulSoup
 from datetime import datetime
+import aiohttp
 
 import calendar_calculator
 from SchedulesTable import SchedulesTable
@@ -17,15 +17,16 @@ NEXT_SCHEDULES_MAX_COUNT = 6
 # line = linka mestskej hromadnej dopravy (Bratislava)
 
 
-def _get_soup(url):
-    # OLD APPROACH:
-    r = requests.get(url)
-    soup = BeautifulSoup(r.content, 'html.parser')
-    return soup
+async def _get_soup(session: aiohttp.ClientSession, url):
+    async with session.get(url) as response:
+        # r = requests.get(url)
+        html_content = await response.text()
+        soup = BeautifulSoup(html_content, 'html.parser')
+        return soup
 
-def _get_line_stops_page_url(line: int):
+async def _get_line_stops_page_url(session: aiohttp.ClientSession, line: int):
     """Get a line stops webpage (for both directions)."""
-    soup = _get_soup(SCHEDULES_PAGE_URL)
+    soup = await _get_soup(session, SCHEDULES_PAGE_URL)
     linky = soup.css.select("a.Linka--lg")
     line_url = None
     for l in linky:
@@ -34,15 +35,17 @@ def _get_line_stops_page_url(line: int):
             break
     return IMHD_URL_PREFIX + line_url
 
-def _get_line_schedules_url(line: int, direction: str, stop: str):
+async def _get_line_schedules_url(session: aiohttp.ClientSession, line: int, direction: str, stop: str):
     """ 
     line: e.g. 3,
     direction: e.g. 'rača',
     stop: 'Jungmanova'
     """
-    line_stops_page_url = _get_line_stops_page_url(line)
+    line_stops_page_url = await _get_line_stops_page_url(session, line)
+    # TODO Aj tento link by sa dal uchovavat v JSON subore / DB.
 
-    soup = _get_soup(line_stops_page_url)
+
+    soup = await _get_soup(session, line_stops_page_url)
 
     list_of_elements = soup.css.select('div[class^="ModuleGroup-left"] div[class^="ModuleGroup-left"] h2[class^="Heading h5"]')
     left_direction = list_of_elements[0]
@@ -64,80 +67,84 @@ def _get_css_selector(table_id: str, departure_hour):
     return f"table[id={table_id}] tr[id={table_id.lower()}T{departure_hour}] td"
 
 
-def get_next_departures_from_schedules_table(line: int, direction: str, start_station: str) -> dict[int, list[str]]:
+async def get_next_departures_from_schedules_table(line: int, direction: str, start_station: str) -> dict[int, list[str]]:
     """return a dictionary, where keys are hours (current and next), and values are minutes - departures"""
     """
     Ziskam si do dvoch poli (ktore budu predstavovat dve hodiny - aktualnu a dalsiu) vsetky odchody.
     Potom vyberiem 6 (konstanta NEXT_SCHEDULES_COUNT) takych, co su rovne, alebo vacsie ako next-departure odchod.
     """
-    url = _get_line_schedules_url(line, direction, start_station)
-    soup = _get_soup(url)
+    async with aiohttp.ClientSession() as session:
+        url = await _get_line_schedules_url(session, line, direction, start_station)
+        # TODO mohli by sme to zrychlit tak, ze by sme si v DB (alebo v JSON subore) uchovavali tieto URL linky. Tie linky sa predsa tak casto nemenia,
+        #  a toto by zrychlilo stranku. Raz za den (napr. v noci) by sa spustil test, ktory by overil, ci nove linky su zhodne s tymi v DB.
 
-    now = datetime.now()
-    current_hour: int = now.hour
-    current_minute: int = now.minute
+        soup = await _get_soup(session, url)
 
-    # div with id "myTabContent" contains tables
-    tables = soup.css.select("div[id=myTabContent] div[id^=SM]")
+        now = datetime.now()
+        current_hour: int = now.hour
+        current_minute: int = now.minute
 
-    tables = [SchedulesTable(t.get('id'), t.h2.getText(), t) for t in tables]
+        # div with id "myTabContent" contains tables
+        tables = soup.css.select("div[id=myTabContent] div[id^=SM]")
 
-    table_id = None
-    for table in tables:
-        applicable_days = table.get_applicable_days()
-        if calendar_calculator.is_working_day():
-            if calendar_calculator.DayTypes.WORKING_DAY in applicable_days:
-                table_id = table._id
-        elif calendar_calculator.DayTypes.FREE_DAY in applicable_days:
-                table_id = table._id
-        if calendar_calculator.is_school_holiday_day():
-            if calendar_calculator.DayTypes.SCHOOL_HOLIDAY_DAY in applicable_days:
-                table_id = table._id
-        elif calendar_calculator.DayTypes.SCHOOL_DAY in applicable_days:
-            table_id = table.id
+        tables = [SchedulesTable(t.get('id'), t.h2.getText(), t) for t in tables]
 
-    table_id_short = table_id.replace('-', '')  # get rid of a hyphen
+        table_id = None
+        for table in tables:
+            applicable_days = table.get_applicable_days()
+            if calendar_calculator.is_working_day():
+                if calendar_calculator.DayTypes.WORKING_DAY in applicable_days:
+                    table_id = table._id
+            elif calendar_calculator.DayTypes.FREE_DAY in applicable_days:
+                    table_id = table._id
+            if calendar_calculator.is_school_holiday_day():
+                if calendar_calculator.DayTypes.SCHOOL_HOLIDAY_DAY in applicable_days:
+                    table_id = table._id
+            elif calendar_calculator.DayTypes.SCHOOL_DAY in applicable_days:
+                table_id = table.id
 
-    css_selector = _get_css_selector(table_id_short, current_hour)
-    first_row_td_elements = soup.css.select(css_selector)
-    first_row_lst = [td.getText() for td in first_row_td_elements if td.getText()]   # TODO oddelime cisla od posledneho charu? A ulozime sem tuples? V tom pripade by sme j mohli nejak zvyraznit
+        table_id_short = table_id.replace('-', '')  # get rid of a hyphen
 
-    # next_schedules is a dict, where key are hours (current and next), and values are minutes
-    next_schedules = {current_hour: []}
-    next_schedules_cnt = 0
+        css_selector = _get_css_selector(table_id_short, current_hour)
+        first_row_td_elements = soup.css.select(css_selector)
+        first_row_lst = [td.getText() for td in first_row_td_elements if td.getText()]   # TODO oddelime cisla od posledneho charu? A ulozime sem tuples? V tom pripade by sme j mohli nejak zvyraznit
 
-    """Do next_schedules sa ako values davaju stringy. Staci najst index toho, ktory je najblizsie k aktualnemu casu, 
-    a potom vsetky prvky zo zonamu od toho indexu vyssie pridat."""
-    for s in first_row_lst:
-        if s and next_schedules_cnt < NEXT_SCHEDULES_MAX_COUNT:
-            # some departures have specific symbol (route for this line is different)
-            last_char = ''
-            if s[-1].isalpha():
-                last_char = s[-1]
-                s = s[:-1]
-            s = int(s)
-            if s <= current_minute:
-                continue
-            else:
-                s = "{:02d}".format(s) + last_char
-                next_schedules[current_hour].append(s)
-                next_schedules_cnt += 1
+        # next_schedules is a dict, where key are hours (current and next), and values are minutes
+        next_schedules = {current_hour: []}
+        next_schedules_cnt = 0
 
-    next_schedules_cnt = len(next_schedules[current_hour])   #count all added td elements
-    if next_schedules_cnt < NEXT_SCHEDULES_MAX_COUNT:
-        # let's scrap another row. Take all schedules from next hour. Then add first 6 (or less) to next_schedules dictionary.
-        next_hour: int = current_hour + 1
-        css_selector = _get_css_selector(table_id_short, next_hour)
-        second_row_td_elements = soup.css.select(css_selector)
-        second_row_lst = [td.getText() for td in second_row_td_elements if td.getText()]
-        if second_row_lst:
-            next_schedules[next_hour] = []
-            while next_schedules_cnt < 6 and second_row_lst:
-                s = second_row_lst.pop(0)
-                if s:
-                    next_schedules[next_hour].append(s)
+        """Do next_schedules sa ako values davaju stringy. Staci najst index toho, ktory je najblizsie k aktualnemu casu, 
+        a potom vsetky prvky zo zonamu od toho indexu vyssie pridat."""
+        for s in first_row_lst:
+            if s and next_schedules_cnt < NEXT_SCHEDULES_MAX_COUNT:
+                # some departures have specific symbol (route for this line is different)
+                last_char = ''
+                if s[-1].isalpha():
+                    last_char = s[-1]
+                    s = s[:-1]
+                s = int(s)
+                if s <= current_minute:
+                    continue
+                else:
+                    s = "{:02d}".format(s) + last_char
+                    next_schedules[current_hour].append(s)
                     next_schedules_cnt += 1
-    return next_schedules
+
+        next_schedules_cnt = len(next_schedules[current_hour])   #count all added td elements
+        if next_schedules_cnt < NEXT_SCHEDULES_MAX_COUNT:
+            # let's scrap another row. Take all schedules from next hour. Then add first 6 (or less) to next_schedules dictionary.
+            next_hour: int = current_hour + 1
+            css_selector = _get_css_selector(table_id_short, next_hour)
+            second_row_td_elements = soup.css.select(css_selector)
+            second_row_lst = [td.getText() for td in second_row_td_elements if td.getText()]
+            if second_row_lst:
+                next_schedules[next_hour] = []
+                while next_schedules_cnt < 6 and second_row_lst:
+                    s = second_row_lst.pop(0)
+                    if s:
+                        next_schedules[next_hour].append(s)
+                        next_schedules_cnt += 1
+        return next_schedules
 
 
 if __name__ == "__main__":
