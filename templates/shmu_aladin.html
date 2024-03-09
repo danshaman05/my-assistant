@@ -1,12 +1,7 @@
 {% extends 'base.html' %}
 
-  <h1>{% block title %}Aladin{% endblock %}</h1>
+<h1>{% block title %}Aladin{% endblock %}</h1>
 
-{% block nav %}
-<li><a href="{{ url_for('moja_mhd') }}">Moja MHD</a></li>
-<li><a href="{{ url_for('shmu_aladin') }}" class="active">Aladin</a></li>
-<li><a href="{{ url_for('shmu_radar') }}">Radar</a></li>
-{% endblock %}
 
 {% block content %}
 <div id="aladin">

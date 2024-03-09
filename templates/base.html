@@ -11,7 +11,9 @@
 <section class="content">
   <header>
     <ul>
-        {% block nav %}{% endblock %}
+      <li><a href="{{ url_for('moja_mhd') }}" class="{% if request.endpoint == 'moja_mhd' %}active{%endif %}">Moja MHD</a></li>
+      <li><a href="{{ url_for('shmu_aladin') }}" class="{% if request.endpoint == 'shmu_aladin' %}active{%endif %}">Aladin</a></li>
+      <li><a href="{{ url_for('shmu_radar') }}" class="{% if request.endpoint == 'shmu_radar' %}active{%endif %}">Radar</a></li>
     </ul>
   </header>
   <main>{% block content %}{% endblock %}</main>

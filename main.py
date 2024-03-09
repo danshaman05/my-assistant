@@ -24,15 +24,12 @@ async def moja_mhd():
     data: OrderedDict[(int, str), IMHDLine] = OrderedDict()
     # key is a line number, e.g. 3 means tram number 3
 
-    # raca_3_data = get_next_departures_from_schedules_table(3,'rača','Jungmannova')
-    # raca_3 = IMHDLine(3, IMHDLineType.TRAM.value, IMHDLineDirection.RACA.value, IMHDLineDirectionAlias.RACA.value, raca_3_data)
-    # data[(3, IMHDLineDirectionAlias.RACA.value)] = raca_3
-
-
+    """input_data element: line number, direction, start station"""
     input_data = [[3, IMHDLineDirection.RACA.value, "Jungmannova" ],
                   [83, IMHDLineDirection.DUBRAVKA.value, "Hálova"],
                   [84, IMHDLineDirection.DUBRAVKA.value, "Hálova"],
                   [88, IMHDLineDirection.AUTOBUSOVA.value, "Hálova"]]
+
     # asynchronously scrap imhd.sk
     tasks = [asyncio.create_task(get_next_departures_from_schedules_table(_id, direction, start_station)) for _id, direction, start_station in input_data]
     results = await asyncio.gather(*tasks)
