@@ -22,3 +22,7 @@ class IMHDLine():
     @property
     def html_class(self):
         return f"{self.type}_{self._id}"
+
+    def is_operating_today(self) -> bool:
+        """Return True, if line is operating today, else False. E.g. line 84 is not operating at weekends."""
+        return bool(self.data)

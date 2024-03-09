@@ -37,7 +37,6 @@ async def moja_mhd():
     tasks = [asyncio.create_task(get_next_departures_from_schedules_table(_id, direction, start_station)) for _id, direction, start_station in input_data]
     results = await asyncio.gather(*tasks)
 
-
     raca_3 = IMHDLine(3,
                            IMHDLineType.TRAM,
                            IMHDLineDirection.RACA,

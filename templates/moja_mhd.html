@@ -10,7 +10,9 @@
         <div class="header">Odchody</div>
 
         {% for line_tuple, line_object in data.items() %}
-            {% include('imhd_line_row.html') %}
+            {% if line_object.is_operating_today() %}
+                {% include('imhd_line_row.html') %}
+            {% endif %}
         {% endfor %}
     </div>
 </div>

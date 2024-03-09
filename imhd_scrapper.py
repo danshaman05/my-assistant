@@ -68,7 +68,8 @@ def _get_css_selector(table_id: str, departure_hour):
 
 
 async def get_next_departures_from_schedules_table(line: int, direction: str, start_station: str) -> dict[int, list[str]]:
-    """return a dictionary, where keys are hours (current and next), and values are minutes - departures"""
+    """Return a dict, where keys are hours (current and next), and values are minutes - departures. Return empty dict if the line
+    is not operating today."""
     """
     Ziskam si do dvoch poli (ktore budu predstavovat dve hodiny - aktualnu a dalsiu) vsetky odchody.
     Potom vyberiem 6 (konstanta NEXT_SCHEDULES_COUNT) takych, co su rovne, alebo vacsie ako next-departure odchod.
@@ -102,6 +103,9 @@ async def get_next_departures_from_schedules_table(line: int, direction: str, st
                     table_id = table._id
             elif calendar_calculator.DayTypes.SCHOOL_DAY in applicable_days:
                 table_id = table.id
+
+        if table_id is None:
+            return {}
 
         table_id_short = table_id.replace('-', '')  # get rid of a hyphen
 
