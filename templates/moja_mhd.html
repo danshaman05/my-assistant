@@ -2,6 +2,13 @@
 
   <h1>{% block title %}Moja MHD{% endblock %}</h1>
 
+{% block nav %}
+<li><a href="{{ url_for('moja_mhd') }}" class="active">Moja MHD</a></li>
+<li><a href="{{ url_for('shmu_aladin') }}">Aladin</a></li>
+<li><a href="{{ url_for('shmu_radar') }}">Radar</a></li>
+{% endblock %}
+
+
 {% block content %}
 
 <div id="schedules_main">

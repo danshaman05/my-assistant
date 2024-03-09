@@ -22,11 +22,11 @@ header li a {
 }
 
 header li a:hover:not(.active) {
-  background-color: #111;
+  background-color: DarkRed;
 }
 
-.active {
-  background-color: #04AA6D;
+header li .active {
+  background-color: #111;
 }
 
 main {

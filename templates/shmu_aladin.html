@@ -2,9 +2,13 @@
 
   <h1>{% block title %}Aladin{% endblock %}</h1>
 
-{% block content %}
+{% block nav %}
+<li><a href="{{ url_for('moja_mhd') }}">Moja MHD</a></li>
+<li><a href="{{ url_for('shmu_aladin') }}" class="active">Aladin</a></li>
+<li><a href="{{ url_for('shmu_radar') }}">Radar</a></li>
+{% endblock %}
 
+{% block content %}
 <div id="aladin">
 <img src="{{ aladin_img_src }}" id="imageArea" class="img-fluid" alt="Graf s priebehom numerických predpovedí"></div>
-
 {% endblock %}
