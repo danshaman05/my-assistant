@@ -8,18 +8,15 @@
 <li><a href="{{ url_for('shmu_radar') }}">Radar</a></li>
 {% endblock %}
 
-
 {% block content %}
-<div id="schedules_main">
-        <div class="header">Linka</div>
-        <div class="header">Smer</div>
-        <div class="header">Odchody</div>
-
-        {% for line_tuple, line_object in data.items() %}
-            {% if line_object.is_operating_today() %}
-                {% include('imhd_line_row.html') %}
-            {% endif %}
-        {% endfor %}
-    </div>
+<div id="schedules_table">
+    <div class="header-el">Linka</div>
+    <div class="header-el">Smer</div>
+    <div class="header-el">Odchody</div>
+    {% for line_tuple, line_object in data.items() %}
+        {% if line_object.is_operating_today() %}
+            {% include('imhd_line_row.html') %}
+        {% endif %}
+    {% endfor %}
 </div>
 {% endblock %}

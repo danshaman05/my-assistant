@@ -1,15 +1,33 @@
+body {
+    margin: 0;
+    font-size: 1.3rem;
+}
+
+main {
+    margin: auto;
+    width: 85%;
+}
+
 iframe { width: 100%; height: 300px; border: none; }
 
+header {
+
+}
+
 header ul {
-  list-style-type: none;
-  padding: 0;
-  overflow: hidden;
-  background-color: #333;
+    display: flex;
+    flex-direction: row;
+    gap: 0px;
+    list-style-type: none;
+    width: 100%;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+    background-color: #333;
 }
 
 header li {
-  margin: auto;
-  width: 30%;
+  margin: 0;
   float: left;
 }
 
@@ -29,29 +47,27 @@ header li .active {
   background-color: #111;
 }
 
-main {
-    margin: auto;
-    width: 75%;
-}
 
-#schedules_main {
+#schedules_table {
     border-style: solid;
     border-radius: 5px;
+
+    display: flex;
+    flex-direction: column;
+    margin: 5px;
+    /*grid-template-rows: 3rem repeat(1, 1fr); */
 }
 
-#schedules_main {
-    display: grid;
-    grid-template-columns: auto 1fr 3fr;
-    grid-template-rows: 3em repeat(1, 1fr);
-}
 
-#schedules_main div {
+#schedules_table div {
     border-radius: 5px;
     margin: 3px;
     padding: 0.75rem 0.3rem;
 }
 
-#schedules_main .header {
+#schedules_table .header-el {
+    display: none;
+
     background-color: Cornsilk;
     color:  #595959;
     margin: 0;
@@ -59,11 +75,19 @@ main {
     /*text-transform: uppercase; */
 }
 
-#schedules_main .content {
+
+#schedules_table .content {
     padding-left: 0.7rem;
     line-height: 2rem;
-    font-size: 1.1rem;
-    padding: 1rem 0.5rem 0 1rem;
+    padding: 1rem 0.5rem 1rem 1rem;
+}
+
+
+#schedules_table .schedule_time {
+    float: left;
+    margin: 5px;
+    padding: 0.25rem;
+    font-size: 1.35rem;
 }
 
 #tram_3 {
@@ -81,9 +105,3 @@ main {
     color: Cornsilk;
 }
 
-#schedules_main .schedule_time {
-    float: left;
-    margin: 5px;
-    padding: 0.25rem;
-    font-size: 1.15rem;
-}

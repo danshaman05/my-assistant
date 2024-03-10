@@ -1,23 +1,33 @@
 <!doctype html>
-<title>{% block title %}{% endblock %} - My assistant</title>
-<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+<head>
+  <title>{% block title %}{% endblock %} - My assistant</title>
 
-<!--JQuery -->
-<!--<script-->
-<!--  src="https://code.jquery.com/jquery-3.7.1.min.js"-->
-<!--  integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo="-->
-<!--  crossorigin="anonymous"></script>-->
+  <!-- Served to all users -->
+  <link rel="stylesheet" href="{{ url_for('static', filename='all_displays.css') }}">
+  <!-- Served to screens that are at least 64em wide -->
+  <link rel="stylesheet" href="{{ url_for('static', filename='larger_displays.css') }}" media="(min-width: 64em)" />
 
-<section class="content">
-  <header>
-    <ul>
-      <li><a href="{{ url_for('moja_mhd') }}" class="{% if request.endpoint == 'moja_mhd' %}active{%endif %}">Moja MHD</a></li>
-      <li><a href="{{ url_for('shmu_aladin') }}" class="{% if request.endpoint == 'shmu_aladin' %}active{%endif %}">Aladin</a></li>
-      <li><a href="{{ url_for('shmu_radar') }}" class="{% if request.endpoint == 'shmu_radar' %}active{%endif %}">Radar</a></li>
-    </ul>
-  </header>
-  <main>{% block content %}{% endblock %}</main>
-</section>
+
+  <!--JQuery -->
+  <!--<script-->
+  <!--  src="https://code.jquery.com/jquery-3.7.1.min.js"-->
+  <!--  integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo="-->
+  <!--  crossorigin="anonymous"></script>-->
+
+</head>
+<body>
+  <section class="content">
+    <header>
+      <ul>
+        <li><a href="{{ url_for('moja_mhd') }}" class="{% if request.endpoint == 'moja_mhd' %}active{%endif %}">Moja MHD</a></li>
+        <li><a href="{{ url_for('shmu_aladin') }}" class="{% if request.endpoint == 'shmu_aladin' %}active{%endif %}">Aladin</a></li>
+        <li><a href="{{ url_for('shmu_radar') }}" class="{% if request.endpoint == 'shmu_radar' %}active{%endif %}">Radar</a></li>
+      </ul>
+    </header>
+    <main>{% block content %}{% endblock %}</main>
+  </section>
 
 <!--My javascript-->
 <!--<script src="{{url_for('static', filename='script.js')}}"></script>-->
+
+</body>
