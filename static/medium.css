@@ -1,0 +1,33 @@
+body {
+    font-size: 20px;
+}
+
+
+#schedules_table {
+    border: 1.8px solid silver;
+    border-radius: 5px;
+    margin: 25px 0;
+    display: grid;
+    grid-template-columns: min-content min-content auto;
+    grid-template-rows: 3em 1fr;
+}
+
+#schedules_table .separator {
+    display: none;
+}
+
+#schedules_table .header-el {
+    display: block;
+}
+
+#schedules_table .content.line {
+    margin: 5px;
+}
+
+#schedules_table .schedule_time {
+    font-size: 1.35rem;
+}
+
+#schedules_table .content.departures {
+    padding: 1.5rem;
+}

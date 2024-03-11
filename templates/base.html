@@ -1,11 +1,15 @@
 <!doctype html>
 <head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
   <title>{% block title %}{% endblock %} - My assistant</title>
 
+
   <!-- Served to all users -->
-  <link rel="stylesheet" href="{{ url_for('static', filename='all_displays.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='all.css') }}"/>
+<!--  <link rel="stylesheet" href="{{ url_for('static', filename='small.css') }}" media="(min-width: 40rem )" />-->
   <!-- Served to screens that are at least 64em wide -->
-  <link rel="stylesheet" href="{{ url_for('static', filename='larger_displays.css') }}" media="(min-width: 64em)" />
+  <link rel="stylesheet" href="{{ url_for('static', filename='medium.css') }}" media="(min-width: 46rem)" />
 
 
   <!--JQuery -->
@@ -16,14 +20,14 @@
 
 </head>
 <body>
-  <section class="content">
-    <header>
+    <nav>
       <ul>
         <li><a href="{{ url_for('moja_mhd') }}" class="{% if request.endpoint == 'moja_mhd' %}active{%endif %}">Moja MHD</a></li>
         <li><a href="{{ url_for('shmu_aladin') }}" class="{% if request.endpoint == 'shmu_aladin' %}active{%endif %}">Aladin</a></li>
         <li><a href="{{ url_for('shmu_radar') }}" class="{% if request.endpoint == 'shmu_radar' %}active{%endif %}">Radar</a></li>
       </ul>
-    </header>
+    </nav>
+  <section class="content">
     <main>{% block content %}{% endblock %}</main>
   </section>
 
