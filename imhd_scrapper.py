@@ -1,5 +1,6 @@
 from bs4 import BeautifulSoup
 from datetime import datetime
+from pytz import timezone
 import aiohttp
 
 import calendar_calculator
@@ -81,9 +82,11 @@ async def get_next_departures_from_schedules_table(line: int, direction: str, st
 
         soup = await _get_soup(session, url)
 
-        now = datetime.now()
-        current_hour: int = now.hour
-        current_minute: int = now.minute
+        bratislava_timezone = timezone('Europe/Bratislava')
+        now_utc = datetime.now()
+        bratislava_now = now_utc.astimezone(bratislava_timezone)
+        current_hour: int = bratislava_now.hour
+        current_minute: int = bratislava_now.minute
 
         # div with id "myTabContent" contains tables
         tables = soup.css.select("div[id=myTabContent] div[id^=SM]")
