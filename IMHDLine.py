@@ -1,5 +1,5 @@
 from constants import IMHDLineType, IMHDLineDirection, IMHDLineDirectionAlias
-from imhd_scrapper import get_next_departures_from_schedules_table
+from imhd_scraper import get_next_departures_from_schedules_table
 import asyncio
 
 

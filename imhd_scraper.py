@@ -18,12 +18,18 @@ NEXT_SCHEDULES_MAX_COUNT = 6
 # line = linka mestskej hromadnej dopravy (Bratislava)
 
 
-async def _get_soup(session: aiohttp.ClientSession, url):
-    async with session.get(url) as response:
-        # r = requests.get(url)
-        html_content = await response.text()
-        soup = BeautifulSoup(html_content, 'html.parser')
-        return soup
+async def _get_soup(session: aiohttp.ClientSession, url) -> BeautifulSoup | None:
+    try:
+        async with session.get(url) as response:
+            html_content = await response.text()
+            soup = BeautifulSoup(html_content, 'html.parser')
+            return soup
+    except aiohttp.ClientError as e:
+        # Handle non-existent page (e.g., log error, return None)
+        print(f"Error: An error occurred while fetching the page: {e}")
+        return None
+
+
 
 async def _get_line_stops_page_url(session: aiohttp.ClientSession, line: int):
     """Get a line stops webpage (for both directions)."""
