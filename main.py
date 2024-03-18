@@ -3,7 +3,7 @@ from collections import OrderedDict
 from flask import Flask, render_template
 
 from IMHDLine import IMHDLine
-from shmu_scrapper import get_aladin_url_img
+from shmu_scraper import get_aladin_url_img
 from imhd_scraper import get_next_departures_from_schedules_table
 from constants import IMHDLineDirection, IMHDLineDirectionAlias, IMHDLineType
 

@@ -21,15 +21,13 @@
 </head>
 <body>
     <nav>
-      <ul>
-        <li><a href="{{ url_for('moja_mhd') }}" class="{% if request.endpoint == 'moja_mhd' %}active{%endif %}">Moja MHD</a></li>
-        <li><a href="{{ url_for('shmu_aladin') }}" class="{% if request.endpoint == 'shmu_aladin' %}active{%endif %}">Aladin</a></li>
-        <li><a href="{{ url_for('shmu_radar') }}" class="{% if request.endpoint == 'shmu_radar' %}active{%endif %}">Radar</a></li>
-      </ul>
+        <a href="{{ url_for('moja_mhd') }}" class="{% if request.endpoint == 'moja_mhd' %}active{%endif %}">Moja MHD</a>
+        <a href="{{ url_for('shmu_aladin') }}" class="{% if request.endpoint == 'shmu_aladin' %}active{%endif %}">Aladin</a>
+        <a href="{{ url_for('shmu_radar') }}" class="{% if request.endpoint == 'shmu_radar' %}active{%endif %}">Radar</a>
     </nav>
-  <section class="content">
-    <main>{% block content %}{% endblock %}</main>
-  </section>
+    <section class="content">
+    {% block content %}{% endblock %}
+    </section>
 
 <!--My javascript-->
 <!--<script src="{{url_for('static', filename='script.js')}}"></script>-->

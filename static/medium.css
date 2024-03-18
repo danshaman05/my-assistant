@@ -2,11 +2,16 @@ body {
     font-size: 20px;
 }
 
+iframe {
+    width: 100%;
+    height: auto;
+    border: none;
+}
 
 #schedules_table {
     border: 1.8px solid silver;
     border-radius: 5px;
-    margin: 25px 0;
+    margin: 25px 1em;
     display: grid;
     grid-template-columns: min-content min-content auto;
     grid-template-rows: 3em 1fr;

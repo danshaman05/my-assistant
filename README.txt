@@ -1,8 +1,8 @@
 # project: My assistant
-# author: Daniel Grohol
-# date of start: March 2024
+author: Daniel Grohol
+date of start: March 2024
 
-How to run the app:
+## How to run (development)
 - using development server:
 `flask --app main run`
 
