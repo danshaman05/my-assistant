@@ -1,0 +1,2 @@
+class CriticalScraperError(Exception):
+    pass

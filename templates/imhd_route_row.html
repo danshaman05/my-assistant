@@ -1,0 +1,14 @@
+<div class="separator"></div>
+<div class="content route" id="{{ imhdroute_object.identifier }}">{{ imhdroute_object.id_number }}</div>
+<div class="content direction-alias">{{ imhdroute_object.direction_alias }}</div>
+<div class="content departures">
+    {% for hour, list_of_minutes in imhdroute_object.data.items() -%}
+        {% if hour == "error" %}
+            {{ list_of_minutes }}
+        {% else %}
+            {% for minute in list_of_minutes %}
+                <div class="schedule_time">{{ hour }}:{{ minute }}</div>
+            {% endfor %}
+        {% endif %}
+    {% endfor %}
+</div>

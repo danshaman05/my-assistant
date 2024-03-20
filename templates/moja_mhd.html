@@ -13,9 +13,9 @@
     <div class="header-el">Linka</div>
     <div class="header-el">Smer</div>
     <div class="header-el">Odchody</div>
-    {% for line_tuple, line_object in data.items() %}
-        {% if line_object.is_operating_today() %}
-            {% include('imhd_line_row.html') %}
+    {% for line_tuple, imhdroute_object in data.items() %}
+        {% if imhdroute_object.is_operating_today() %}
+            {% include('imhd_route_row.html') %}
         {% endif %}
     {% endfor %}
 </div>

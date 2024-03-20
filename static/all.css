@@ -87,11 +87,11 @@ nav a .active {
     padding: 1.2rem;
 }
 
-#schedules_table .content.line, .content.direction-alias{
+#schedules_table .content.route, .content.direction-alias{
     width: auto;
 }
 
-#schedules_table .content.line {
+#schedules_table .content.route {
     font-family: Verdana, sans-serif;
     clear: left;
 }
