@@ -1,0 +1,36 @@
+{
+    "route_stops_page": {
+        "3": "https://imhd.sk/ba/linka/3/bd807c807f847f7f827c82",
+        "83": "https://imhd.sk/ba/linka/83/bd807c807f847f87827c8782",
+        "84": "https://imhd.sk/ba/linka/84/bd807c807f847f87837c8783",
+        "88": "https://imhd.sk/ba/linka/88/bd807c807f847f87877c8787"
+    },
+    "route_schedules": {
+        "3": {
+            "Ra\u010da": {
+                "Jungmannova": "https://imhd.sk/ba/cestovny-poriadok/linka/3/Jungmannova/smer-Ra%C4%8Da/bd807c807f847f7f827c8275c18075b680808775be7f75c97f75b3"
+            }
+        },
+        "84": {
+            "PETR\u017dALKA, OVSI\u0160TE": {
+                "Zochova": "https://imhd.sk/ba/cestovny-poriadok/linka/84/Zochova/smer-Petr%C5%BEalka-Ovsi%C5%A1te/bd807c807f847f87837c878375c18075b683838775be7f75c9808475b3"
+            },
+            "D\u00daBRAVKA, PRI KR\u00cd\u017dI": {
+                "H\u00e1lova": "https://imhd.sk/ba/cestovny-poriadok/linka/84/H%C3%A1lova/smer-D%C3%BAbravka-Pri-kr%C3%AD%C5%BEi/bd807c807f847f87837c878375c17f75b6868575be7f75c98775b3"
+            }
+        },
+        "83": {
+            "PETR\u017dALKA, KUTL\u00cdKOVA": {
+                "Zochova": "https://imhd.sk/ba/cestovny-poriadok/linka/83/Zochova/smer-Petr%C5%BEalka-Kutl%C3%ADkova/bd807c807f847f87827c878275c18075b683838775be7f75c9808775b3"
+            },
+            "D\u00daBRAVKA, PRI KR\u00cd\u017dI": {
+                "H\u00e1lova": "https://imhd.sk/ba/cestovny-poriadok/linka/83/H%C3%A1lova/smer-D%C3%BAbravka-Pri-kr%C3%AD%C5%BEi/bd807c807f847f87827c878275c17f75b6868575be7f75c98575b3"
+            }
+        },
+        "88": {
+            "AUTOBUSOV\u00c1 STANICA CEZ PETR\u017dALKU": {
+                "H\u00e1lova": "https://imhd.sk/ba/cestovny-poriadok/linka/88/H%C3%A1lova/smer-Autobusov%C3%A1-stanica-cez-Petr%C5%BEalku/bd807c807f847f87877c878775c17f75b6868575be7f75c98475b3"
+            }
+        }
+    }
+}

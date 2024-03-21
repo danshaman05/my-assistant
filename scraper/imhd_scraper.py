@@ -4,6 +4,7 @@ from bs4 import BeautifulSoup
 from datetime import datetime
 from pytz import timezone
 import aiohttp
+import json
 
 from calendar_calculator import today_is_working_day, today_is_school_holiday_day, DayTypes
 from IMHDRoute import IMHDRoute
@@ -14,6 +15,7 @@ from scraper.errors import CriticalScraperError
 IMHD_URL_PREFIX = "https://imhd.sk"
 SCHEDULES_PAGE_URL = "https://imhd.sk/ba/cestovne-poriadky"
 SCHEDULES_PAGE_URL_OFFLINE = "/home/daniel/PycharmProjects/My_assistant/imhd_offline_pages/cestovne poriadky/ba/cestovne-poriadky.html"
+CACHED_LINKS_FILE = 'scraper/cached_links.json'
 
 NEXT_SCHEDULES_MAX_COUNT = 6
 """NEXT_SCHEDULES_COUNT sets how much next schedules we want to find out. Note, that the programme will look 
@@ -37,18 +39,63 @@ async def _get_soup(session: aiohttp.ClientSession, url) -> BeautifulSoup:
         raise CriticalScraperError(f"Error: An error occurred while fetching the page. Exception: {e}. URL: {url}")
 
 
-async def _get_route_stops_page_url(session: aiohttp.ClientSession, line: int):
-    """Get a route stops webpage URL (for both directions)."""
+def get_cached_link(*path_args: str) -> str | None:
+    """Return cached link. If there is no link in file, return None."""
+    if path_args[0] is None:
+        raise CriticalScraperError("First argument cannot be None.")
+    cached_links_dict = get_cached_links_dictionary()
+    if not cached_links_dict:
+        return None
+    data = cached_links_dict
+    for path_element in path_args:
+        data = data.get(path_element, None)
+        if not data:
+            return None
+    return data
+
+
+def get_cached_links_dictionary() -> dict | None:
+    with open(CACHED_LINKS_FILE, 'r') as file:
+        d = json.load(file)
+        if not d:
+            return {}
+        return d
+
+
+def write_link_into_cache_file(link: str, *path_args: str):
+    """Writes link in to cache file."""
+    result_dict = get_cached_links_dictionary()
+
+    subdict = result_dict
+    for element in path_args[:-1]:
+        if element not in subdict:
+            subdict[element] = {}
+        subdict = subdict[element]
+    subdict[path_args[-1]] = link
+    with open(CACHED_LINKS_FILE, 'w') as file:
+        json.dump(result_dict, file, indent=4)
+
+
+
+async def _get_route_stops_page_url(session: aiohttp.ClientSession, route: int):
+    """For a given route get its stops webpage URL (stops for both directions)."""
+    # try to get link from cached_links.json file:
+    link = get_cached_link("route_stops_page", str(route))
+    if link:
+        return link
+
     soup = await _get_soup(session, SCHEDULES_PAGE_URL)
     routes = soup.css.select("a.Linka--lg")
     if not routes:
         raise CriticalScraperError("Error. Cannot get links of routes.")
     line_url = None
     for l in routes:
-        if l.text == str(line):
+        if l.text == str(route):
             line_url = l['href']
             break
-    return IMHD_URL_PREFIX + line_url
+    link = IMHD_URL_PREFIX + line_url
+    write_link_into_cache_file(link, "route_stops_page", str(route))
+    return link
 
 async def _get_route_schedules_url(session: aiohttp.ClientSession, route: int, direction: str, stop: str):
     """ 
@@ -56,6 +103,10 @@ async def _get_route_schedules_url(session: aiohttp.ClientSession, route: int, d
     :param direction: e.g. 'rača',
     :param stop: 'Jungmanova'
     """
+    link = get_cached_link("route_schedules", str(route), direction, stop)
+    if link:
+        print("USPECH, vyberam LINK  Z CACHE !!!")
+        return link
     route_stops_page_url = await _get_route_stops_page_url(session, route)
     soup = await _get_soup(session, route_stops_page_url)
 
@@ -74,7 +125,9 @@ async def _get_route_schedules_url(session: aiohttp.ClientSession, route: int, d
         # first stop is different, it has a span as a child element
         route_name = a.span.getText() if a.span else a.getText()
         if route_name.lower() == stop.lower():
-            return IMHD_URL_PREFIX + a['href']
+            link = IMHD_URL_PREFIX + a['href']
+            write_link_into_cache_file(link, "route_schedules", str(route), direction, stop)
+            return link
     raise ValueError("Your input is probably wrong. Check it, and if it is OK, contact a developer.")
 
 
@@ -183,6 +236,17 @@ async def set_next_departures_for_each_object(dict_of_imhdline_objects: dict[tup
 
 if __name__ == "__main__":
     TESTING = False
+
+
+    # print(get_cached_links_dictionary())
+    # write_link_into_cache_file("imhd.sk", "hlavny")
+    # print(get_cached_links_dictionary())
+    # write_link_into_cache_file("iny", "hlavny")
+    # print(get_cached_links_dictionary())
+    # write_link_into_cache_file("link.....", "route_stops_url", "key2")
+    # print(get_cached_links_dictionary())
+
+    # print(get_cached_link("route_stops_url", "key2"))
 
     if TESTING:
         print("Start of testing.")
