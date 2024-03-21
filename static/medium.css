@@ -1,7 +1,3 @@
-body {
-    font-size: 18px;
-}
-
 iframe {
     width: 100%;
     height: auto;
@@ -36,11 +32,11 @@ iframe {
 }
 
 #schedules_table .schedule_time {
-    font-size: 1.35rem;
+    font-size: 1.15rem;
 }
 
 #schedules_table .content.departures {
-    padding: 1.5rem;
+    padding: 0.5rem 1rem;
 }
 
 #schedules_table p.annotation {
