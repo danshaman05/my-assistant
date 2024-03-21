@@ -1,5 +1,5 @@
 body {
-    font-size: 20px;
+    font-size: 18px;
 }
 
 iframe {
@@ -13,7 +13,7 @@ iframe {
     border-radius: 5px;
     margin: 25px 1em;
     display: grid;
-    grid-template-columns: min-content min-content auto;
+    grid-template-columns: repeat(3, min-content) auto;
     grid-template-rows: 3em 1fr;
 }
 
@@ -23,10 +23,16 @@ iframe {
 
 #schedules_table .header-el {
     display: block;
+    border-radius: 0;
 }
 
 #schedules_table .content.route {
     margin: 5px;
+    height: max-content;
+}
+
+#schedules_table .content.start-station {
+    padding: 1.2rem;
 }
 
 #schedules_table .schedule_time {
@@ -35,4 +41,8 @@ iframe {
 
 #schedules_table .content.departures {
     padding: 1.5rem;
+}
+
+#schedules_table p.annotation {
+    display: none;
 }

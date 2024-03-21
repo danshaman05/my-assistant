@@ -1,5 +1,9 @@
 <div class="separator"></div>
 <div class="content route" id="{{ imhdroute_object.identifier }}">{{ imhdroute_object.id_number }}</div>
+<div class="content start-station fw-light">
+    <p class="annotation text-left fst-italic">Zo zastávky:</p>
+    <p>{{ imhdroute_object.start_station }}</p>
+</div>
 <div class="content direction-alias">{{ imhdroute_object.direction_alias }}</div>
 <div class="content departures">
     {% for hour, list_of_minutes in imhdroute_object.data.items() -%}

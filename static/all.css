@@ -87,7 +87,7 @@ nav a .active {
     padding: 1.2rem;
 }
 
-#schedules_table .content.route, .content.direction-alias{
+#schedules_table .content.route, .content.direction-alias, .content.start-station {
     width: auto;
 }
 
@@ -96,8 +96,21 @@ nav a .active {
     clear: left;
 }
 
-#schedules_table .content.direction-alias{
+#schedules_table .content.direction-alias {
     clear: right;
+}
+
+#schedules_table .content.start-station {
+    clear: right;
+    padding: 0.4rem 1rem 0;
+}
+
+#schedules_table p.annotation {
+    float: left;
+    font-size: 0.7rem;
+    padding: 0;
+    clear: both;
+    margin-bottom: -0.3rem;
 }
 
 #schedules_table .content.departures {
