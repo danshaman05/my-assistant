@@ -1,4 +1,5 @@
 from datetime import datetime, timedelta
+from pytz import timezone
 from workalendar.europe import Slovakia
 from enum import Enum
 
@@ -38,14 +39,18 @@ _letne = _get_datetime_objects_between_2_dates(_letne_first_day, _letne_last_day
 _skolske_prazdniny = _vianocne + _jarne + _velkonocne + _letne
 
 # Get current date but set it to midnight:
-today = datetime.now().replace(hour=0, minute=0, second=0, microsecond=0)
+bratislava_timezone = timezone('Europe/Bratislava')
+now_utc = datetime.now()
+bratislava_now = now_utc.astimezone(bratislava_timezone)
+
+today = bratislava_now.replace(hour=0, minute=0, second=0, microsecond=0)
 
 
-def is_working_day():
+def today_is_working_day():
     cal = Slovakia()
     return cal.is_working_day(today)
 
-def is_school_holiday_day():
+def today_is_school_holiday_day():
     return today in _skolske_prazdniny
 
 
@@ -80,4 +85,6 @@ Edited 12:50:
 I have found out, that "planovac trasy" will show only 4 next connections. If we want to show more, we need to click on "Neskôr".
  """
 
-
+if __name__ == "__main__":
+    print("Working day?", today_is_working_day())
+    print("School holiday?", today_is_school_holiday_day())

@@ -5,7 +5,7 @@ from datetime import datetime
 from pytz import timezone
 import aiohttp
 
-import calendar_calculator
+from calendar_calculator import today_is_working_day, today_is_school_holiday_day, DayTypes
 from IMHDRoute import IMHDRoute
 from SchedulesTable import SchedulesTable
 from constants import IMHDRouteDirectionAlias
@@ -83,6 +83,28 @@ def _get_css_selector_for_table_row(table_id: str, departure_hour) -> str:
     return f"table[id={table_id}] tr[id={table_id.lower()}T{departure_hour}] td"
 
 
+def select_table_for_today(tables_lst: list[SchedulesTable]) -> str | None:
+    """Return None if there isn't any suitable table, else return table_id of selected table."""
+
+    if not tables_lst:
+        raise CriticalScraperError("List tables_lst cannot be empty!")
+    tw = today_is_working_day()
+    th = today_is_school_holiday_day()
+    today_map = {
+        DayTypes.WORKING_DAY: tw,
+        DayTypes.FREE_DAY: not tw,
+        DayTypes.SCHOOL_HOLIDAY_DAY: th,
+        DayTypes.SCHOOL_DAY: not th,
+    }
+    for table in tables_lst:
+        applicable_days = table.get_applicable_days()
+        if today_map[applicable_days[0]]:
+            if len(applicable_days) == 1:
+                return table.table_id
+            elif today_map[applicable_days[1]]:
+                return table.table_id
+
+
 async def set_next_departures_from_schedules_table(session: aiohttp.ClientSession, imhd_route_obj: IMHDRoute):
     """
     Return a dict, where keys are hours (current and next hour), and values are minutes - departures. Return empty dict if the route
@@ -105,30 +127,12 @@ async def set_next_departures_from_schedules_table(session: aiohttp.ClientSessio
     if not tables:
         raise CriticalScraperError("ERROR. Scraping failed. Cannot get tables.")
     tables = [SchedulesTable(t.get('id'), t.h2.getText(), t) for t in tables]
-
-    table_id = None
-    for table in tables:
-        applicable_days = table.get_applicable_days()
-        if calendar_calculator.is_working_day():
-            if calendar_calculator.DayTypes.WORKING_DAY in applicable_days:
-                table_id = table._id
-        elif calendar_calculator.DayTypes.FREE_DAY in applicable_days:
-                table_id = table._id
-        if calendar_calculator.is_school_holiday_day():
-            if calendar_calculator.DayTypes.SCHOOL_HOLIDAY_DAY in applicable_days:
-                table_id = table._id
-        elif calendar_calculator.DayTypes.SCHOOL_DAY in applicable_days:
-            table_id = table._id
-
+    table_id = select_table_for_today(tables)
     if table_id is None:
         return {}
-
     table_id_short = table_id.replace('-', '')  # get rid of a hyphen
-
     css_selector = _get_css_selector_for_table_row(table_id_short, current_hour)
     first_row_td_elements = soup.css.select(css_selector)
-    if not first_row_td_elements:
-        raise CriticalScraperError("ERROR. Scraping failed. Cannot get first_row_td_elements.")
     first_row_lst = [td.getText() for td in first_row_td_elements if td.getText()]   # TODO oddelime cisla od posledneho charu? A ulozime sem tuples? V tom pripade by sme j mohli nejak zvyraznit
 
     # next_schedules is a dict, where key are hours (current and next), and values are minutes
@@ -158,8 +162,6 @@ async def set_next_departures_from_schedules_table(session: aiohttp.ClientSessio
         next_hour: int = current_hour + 1
         css_selector = _get_css_selector_for_table_row(table_id_short, next_hour)
         second_row_td_elements = soup.css.select(css_selector)
-        if not second_row_td_elements:
-            raise CriticalScraperError("ERROR. Scraping failed. Cannot get second_row_td_elements.")
         second_row_lst = [td.getText() for td in second_row_td_elements if td.getText()]
         if second_row_lst:
             next_schedules[next_hour] = []

@@ -9,7 +9,7 @@ class IMHDRoute():
                  start_station: str,
                  data: None | dict = None):
         self.id_number = id_number
-        # FIXME: Nemaju nasledujuce atributy byt bez volania .value?
+        # TODO: Nemaju nasledujuce atributy byt bez volania .value?
         self.type: str = vehicle_type.value
         self.direction: str = direction.value
         self.direction_alias: str = direction_alias.value
