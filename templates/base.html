@@ -23,11 +23,8 @@
 
 </head>
 <body>
-    <nav>
-        <a href="{{ url_for('moja_mhd') }}" class="{% if request.endpoint == 'moja_mhd' %}active{%endif %}">Moja MHD</a>
-        <a href="{{ url_for('shmu_aladin') }}" class="{% if request.endpoint == 'shmu_aladin' %}active{%endif %}">Aladin</a>
-        <a href="{{ url_for('shmu_radar') }}" class="{% if request.endpoint == 'shmu_radar' %}active{%endif %}">Radar</a>
-    </nav>
+    {% include('navbar.html') %}
+
     <section class="content">
             {% for message in get_flashed_messages(category_filter=["Error"]) %}
             <div class="alert alert-danger alert-dismissible fade show" role="alert">

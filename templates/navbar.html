@@ -1,0 +1,15 @@
+<nav class="navbar navbar-expand-md bg-dark border-bottom border-body" data-bs-theme="dark">
+    <div class="container-fluid">
+        <a class="navbar-brand fst-italic" href="#">My Assistant</a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavAltMarkup" aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
+          <div class="navbar-nav">
+            <a class="nav-link{% if request.endpoint == 'my_mhd' %} active" aria-current="page" {% endif %}" href="{{ url_for('my_mhd') }}">Moja MHD</a>
+            <a class="nav-link{% if request.endpoint == 'shmu_aladin' %} active" aria-current="page"  {%endif %}" href="{{ url_for('shmu_aladin') }}">Aladin</a>
+            <a class="nav-link{% if request.endpoint == 'shmu_radar' %} active" aria-current="page" {%endif %}" href="{{ url_for('shmu_radar') }}">Radar</a>
+          </div>
+        </div>
+    </div>
+</nav>

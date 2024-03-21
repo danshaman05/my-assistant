@@ -21,8 +21,8 @@ def shmu_radar():
 
 
 @app.route("/")
-@app.route("/moja-mhd")
-async def moja_mhd():
+@app.route("/my-mhd")
+async def my_mhd():
     imhdroute_objects: OrderedDict[(int, str), IMHDRoute] = OrderedDict()
     """Key is a route number, e.g. 3 means tram number 3
     It is better to have data in mapped to route ids and directions in a dict, in a case we 
@@ -52,6 +52,18 @@ async def moja_mhd():
                                                                           IMHDRouteDirectionAlias.AUTOBUSOVA,
                       "Hálova")
 
+    imhdroute_objects[(83, IMHDRouteDirectionAlias.PETRZALKA)] = IMHDRoute(83,
+                                                                          IMHDVehicleType.BUS,
+                                                                          IMHDRouteDirection.PETRZALKA_KUTLIKOVA,
+                                                                          IMHDRouteDirectionAlias.PETRZALKA,
+                                                                          "Zochova")
+
+    imhdroute_objects[(84, IMHDRouteDirectionAlias.PETRZALKA)] = IMHDRoute(84,
+                                                                                     IMHDVehicleType.BUS,
+                                                                                     IMHDRouteDirection.PETRZALKA_OVSISTE,
+                                                                                     IMHDRouteDirectionAlias.PETRZALKA,
+                                                                                     "Zochova")
+
     try:
         await set_next_departures_for_each_object(imhdroute_objects)
     except (CriticalScraperError, ValueError) as e:
@@ -60,4 +72,4 @@ async def moja_mhd():
         flash(
             "We were unable to obtain information on the departures of some routes. Please contact the administrator.", "Error")
 
-    return render_template("moja_mhd.html", data=imhdroute_objects)
+    return render_template("my_mhd.html", data=imhdroute_objects)

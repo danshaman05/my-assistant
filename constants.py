@@ -8,6 +8,8 @@ class IMHDRouteDirection(Enum):
     DUBRAVKA = 'DÚBRAVKA, PRI KRÍŽI'
     RACA = 'Rača'
     AUTOBUSOVA = "AUTOBUSOVÁ STANICA CEZ PETRŽALKU"
+    PETRZALKA_KUTLIKOVA = "PETRŽALKA, KUTLÍKOVA"
+    PETRZALKA_OVSISTE = "PETRŽALKA, OVSIŠTE"
 
 
 class IMHDRouteDirectionAlias(Enum):
@@ -15,4 +17,5 @@ class IMHDRouteDirectionAlias(Enum):
     DUBRAVKA = 'Dúbravka'
     RACA = 'Rača'
     AUTOBUSOVA = 'Autobusová stanica'
+    PETRZALKA = "Petržalka"
 
