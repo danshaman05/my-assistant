@@ -6,10 +6,10 @@ from pytz import timezone
 import aiohttp
 import json
 
-from calendar_calculator import today_is_working_day, today_is_school_holiday_day, DayTypes
+import constants
+import calendar_calculator
 from IMHDRoute import IMHDRoute
 from SchedulesTable import SchedulesTable
-from constants import IMHDRouteDirectionAlias
 from scraper.errors import CriticalScraperError
 
 IMHD_URL_PREFIX = "https://imhd.sk"
@@ -105,7 +105,6 @@ async def _get_route_schedules_url(session: aiohttp.ClientSession, route: int, d
     """
     link = get_cached_link("route_schedules", str(route), direction, stop)
     if link:
-        print("USPECH, vyberam LINK  Z CACHE !!!")
         return link
     route_stops_page_url = await _get_route_stops_page_url(session, route)
     soup = await _get_soup(session, route_stops_page_url)
@@ -141,13 +140,13 @@ def select_table_for_today(tables_lst: list[SchedulesTable]) -> str | None:
 
     if not tables_lst:
         raise CriticalScraperError("List tables_lst cannot be empty!")
-    tw = today_is_working_day()
-    th = today_is_school_holiday_day()
+    tw = calendar_calculator.today_is_working_day()
+    th = calendar_calculator.today_is_school_holiday_day()
     today_map = {
-        DayTypes.WORKING_DAY: tw,
-        DayTypes.FREE_DAY: not tw,
-        DayTypes.SCHOOL_HOLIDAY_DAY: th,
-        DayTypes.SCHOOL_DAY: not th,
+        constants.DayTypes.WORKING_DAY: tw,
+        constants.DayTypes.FREE_DAY: not tw,
+        constants.DayTypes.SCHOOL_HOLIDAY_DAY: th,
+        constants.DayTypes.SCHOOL_DAY: not th,
     }
     for table in tables_lst:
         applicable_days = table.get_applicable_days()
@@ -227,7 +226,7 @@ async def set_next_departures_from_schedules_table(session: aiohttp.ClientSessio
     imhd_route_obj.set_data(next_schedules)
 
 
-async def set_next_departures_for_each_object(dict_of_imhdline_objects: dict[tuple[int, IMHDRouteDirectionAlias], IMHDRoute]):
+async def set_next_departures_for_each_object(dict_of_imhdline_objects: dict[tuple[int, constants.IMHDRouteDirectionAlias], IMHDRoute]):
     # asynchronously scrap each IMHDLine object from imhd.sk
     async with aiohttp.ClientSession() as session:
         tasks = [asyncio.create_task(set_next_departures_from_schedules_table(session, obj)) for obj in dict_of_imhdline_objects.values()]
@@ -236,17 +235,6 @@ async def set_next_departures_for_each_object(dict_of_imhdline_objects: dict[tup
 
 if __name__ == "__main__":
     TESTING = False
-
-
-    # print(get_cached_links_dictionary())
-    # write_link_into_cache_file("imhd.sk", "hlavny")
-    # print(get_cached_links_dictionary())
-    # write_link_into_cache_file("iny", "hlavny")
-    # print(get_cached_links_dictionary())
-    # write_link_into_cache_file("link.....", "route_stops_url", "key2")
-    # print(get_cached_links_dictionary())
-
-    # print(get_cached_link("route_stops_url", "key2"))
 
     if TESTING:
         print("Start of testing.")
@@ -268,8 +256,8 @@ if __name__ == "__main__":
         # It needs to be tested manually.
 
 
-        print("Linka 3:")
-        print(set_next_departures_from_schedules_table(3, "rača", "Jungmannova"))
+        # print("Linka 3:")
+        # print(set_next_departures_from_schedules_table(3, "rača", "Jungmannova"))
         # print(get_next_departures_from_schedules_table(3, 'rača', 'centrum'))
         # print("Linka 41:")
         # print(get_next_departures_from_schedules_table(41, 'Hlavná stanica', 'Na hrebienku'))
@@ -278,5 +266,15 @@ if __name__ == "__main__":
         # 84 je otestovana a funguje
         # print("Linka 84:")
         # print(get_next_departures_from_schedules_table(84, 'Petržalka, Ovsište', 'ŠVantnerova'))
+
+        # print(get_cached_links_dictionary())
+        # write_link_into_cache_file("imhd.sk", "hlavny")
+        # print(get_cached_links_dictionary())
+        # write_link_into_cache_file("iny", "hlavny")
+        # print(get_cached_links_dictionary())
+        # write_link_into_cache_file("link.....", "route_stops_url", "key2")
+        # print(get_cached_links_dictionary())
+
+        # print(get_cached_link("route_stops_url", "key2"))
 
         print("End of testing.")

@@ -1,8 +1,17 @@
 from enum import Enum
 
+
+class DayTypes(Enum):
+    WORKING_DAY = 'working_day'
+    FREE_DAY = 'free_day'
+    SCHOOL_DAY = 'school_day'
+    SCHOOL_HOLIDAY_DAY = 'school_holiday_day'
+
+
 class IMHDVehicleType(Enum):
     BUS = 'bus'
     TRAM = 'tram'
+
 
 class IMHDRouteDirection(Enum):
     DUBRAVKA = 'DÚBRAVKA, PRI KRÍŽI'
@@ -18,4 +27,3 @@ class IMHDRouteDirectionAlias(Enum):
     RACA = 'Rača'
     AUTOBUSOVA = 'Autobusová stanica'
     PETRZALKA = "Petržalka"
-
